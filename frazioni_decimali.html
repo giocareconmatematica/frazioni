@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Schede frazioni (centesimi)</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px;
+  background: #ececec;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  color: #111;
+}
+.container { width: 820px; }
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+}
+.controls { display: flex; gap: 10px; align-items: center; }
+input {
+  width: 78px;
+  padding: 7px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+button {
+  padding: 8px 14px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+.page {
+  background: white;
+  padding: 34px 34px 40px;
+  border: 2px solid #333;
+  min-height: 1120px;
+}
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  margin-bottom: 18px;
+}
+.title {
+  text-align: center;
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0;
+}
+.logo img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+.top {
+  display: grid;
+  grid-template-columns: 240px 170px 240px;
+  justify-content: space-between;
+  align-items: start;
+  margin-top: 8px;
+}
+.left-stack,
+.right-stack {
+  display: grid;
+  gap: 18px;
+}
+.box {
+  border: 2px solid #333;
+  border-radius: 16px;
+  padding: 12px 14px 16px;
+  min-height: 88px;
+}
+.box.small {
+  min-height: 58px;
+  border-radius: 14px;
+}
+.box-title {
+  font-size: 16px;
+  line-height: 1.15;
+}
+.line-under {
+  border-top: 2px solid #333;
+  margin-top: 16px;
+}
+.center {
+  text-align: center;
+}
+.center-label {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.circle {
+  width: 150px;
+  height: 150px;
+  border: 6px dotted #7db5e8;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 10px;
+}
+.circle.narrow {
+  font-size: 26px;
+}
+.bar {
+  width: 70px;
+  border-top: 4px solid #111;
+  margin: 10px 0;
+}
+.mid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  align-items: start;
+}
+.section-title {
+  font-size: 17px;
+  margin-bottom: 14px;
+}
+.compare-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.small-circle {
+  width: 48px;
+  height: 48px;
+  border: 2px solid #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  text-align: center;
+  padding: 2px;
+}
+.small-circle.frac-small {
+  font-size: 14px;
+}
+.sign-line {
+  width: 30px;
+  border-top: 2px solid #333;
+}
+.bottom {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 42px;
+  align-items: start;
+}
+.grid-title,
+.line-title {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+.hundred-grid {
+  width: 200px;
+  height: 200px;
+  border: 2px solid #333;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+}
+.cell {
+  border-right: 1px solid #999;
+  border-bottom: 1px solid #999;
+}
+.cell:nth-child(10n) { border-right: 0; }
+.cell:nth-last-child(-n + 10) { border-bottom: 0; }
+.numberline-wrap {
+  padding-top: 2px;
+}
+.numberline {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 88px;
+}
+.axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34px;
+  border-top: 2px solid #333;
+}
+.arrow-left,
+.arrow-right {
+  position: absolute;
+  top: 28px;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid #333;
+  border-right: 2px solid #333;
+}
+.arrow-left {
+  left: -1px;
+  transform: rotate(-135deg);
+}
+.arrow-right {
+  right: -1px;
+  transform: rotate(45deg);
+}
+.tick {
+  position: absolute;
+  top: 28px;
+  width: 0;
+  height: 12px;
+  border-left: 2px solid #333;
+  transform: translateX(-1px);
+}
+.tick.small {
+  top: 30px;
+  height: 8px;
+}
+.axis-label {
+  position: absolute;
+  top: 48px;
+  font-size: 14px;
+  transform: translateX(-50%);
+}
+@media print {
+  .toolbar { display: none; }
+  body { background: white; padding: 0; }
+  .page { border: none; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="toolbar">
+    <div class="controls">
+      <label>Numeratore</label>
+      <input id="n" type="number" min="0" value="75">
+      <label>Denominatore</label>
+      <input id="d" type="number" min="1" value="100">
+      <button onclick="gen()">Genera</button>
+    </div>
+    <button onclick="window.print()">Scarica PDF</button>
+  </div>
+
+  <div class="page" id="page"></div>
+</div>
+
+<script>
+function makeGridCells() {
+  let html = '';
+  for (let i = 0; i < 100; i++) html += '<div class="cell"></div>';
+  return html;
+}
+
+function makeNumberLine(d) {
+  let ticks = '<div class="axis"></div><div class="arrow-left"></div><div class="arrow-right"></div>';
+  for (let i = 0; i <= 10; i++) {
+    const left = i * 10;
+    const cls = (i === 0 || i === 5 || i === 10) ? '' : 'small';
+    ticks += `<div class="tick ${cls}" style="left:${left}%"></div>`;
+  }
+  ticks += `<div class="axis-label" style="left:0%">0</div>`;
+  ticks += `<div class="axis-label" style="left:100%">1</div>`;
+  return ticks;
+}
+
+function gen() {
+  const n = +document.getElementById('n').value;
+  const d = +document.getElementById('d').value;
+  if (!d || d < 1) return;
+
+  const narrowClass = String(n).length > 2 || String(d).length > 2 ? 'narrow' : '';
+
+  document.getElementById('page').innerHTML = `
+    <div class="header">
+      <h1 class="title">Frazione del giorno</h1>
+      <div class="logo"><img src="logo.png" alt="logo"></div>
+    </div>
+
+    <div class="top">
+      <div class="left-stack">
+        <div class="box small"><div class="box-title">Numeratore</div><div class="line-under"></div></div>
+        <div class="box small"><div class="box-title">Denominatore</div><div class="line-under"></div></div>
+        <div class="box small"><div class="box-title">Numero decimale</div><div class="line-under"></div></div>
+      </div>
+
+      <div class="center">
+        <div class="center-label">La mia frazione è</div>
+        <div class="circle ${narrowClass}">
+          <div>${n}</div>
+          <div class="bar"></div>
+          <div>${d}</div>
+        </div>
+      </div>
+
+      <div class="right-stack">
+        <div class="box"><div class="box-title">Scrivi in parole</div><div class="line-under"></div></div>
+        <div class="box small"><div class="box-title">Percentuale</div><div class="line-under"></div></div>
+      </div>
+    </div>
+
+    <div class="mid">
+      <div>
+        <div class="section-title">Confronta</div>
+        <div class="compare-row"><div class="small-circle"></div><div class="sign-line"></div><div class="small-circle">1/2</div></div>
+        <div class="compare-row"><div class="small-circle"></div><div class="sign-line"></div><div class="small-circle">1</div></div>
+      </div>
+      <div>
+        <div class="section-title">Equivalenza</div>
+        <div class="compare-row"><div class="small-circle frac-small">${n}/${d}</div><div class="sign-line"></div><div class="small-circle"></div></div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div>
+        <div class="grid-title">Colora la griglia</div>
+        <div class="hundred-grid">${makeGridCells()}</div>
+      </div>
+      <div class="numberline-wrap">
+        <div class="line-title">Rappresenta sulla linea dei numeri</div>
+        <div class="numberline">${makeNumberLine(d)}</div>
+      </div>
+    </div>
+  `;
+}
+
+gen();
+</script>
+</body>
+</html>

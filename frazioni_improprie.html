@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Frazione del giorno</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px;
+  background: #ececec;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #111;
+  display: flex;
+  justify-content: center;
+}
+.container { width: 800px; }
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+}
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+input {
+  width: 60px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 2px solid #333;
+  text-align: center;
+}
+button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 2px solid #333;
+  background: white;
+  cursor: pointer;
+}
+.page {
+  background: white;
+  padding: 40px 40px 34px;
+  border: 2px solid #333;
+  min-height: 1100px;
+}
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  margin-bottom: 34px;
+}
+.logo-top img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+}
+.title {
+  text-align: center;
+  font-size: 30px;
+  margin: 0;
+  line-height: 1.1;
+}
+.top {
+  display: grid;
+  grid-template-columns: 240px 140px 250px;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 42px;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 54px;
+  border: 2px solid #222;
+  height: 34px;
+  margin-bottom: 12px;
+}
+.label {
+  border-right: 2px solid #222;
+  padding: 6px;
+  font-size: 14px;
+}
+.fraction-block { text-align: center; }
+.fraction-label { font-size: 15px; margin-bottom: 10px; }
+.fraction-circle {
+  width: 92px;
+  height: 92px;
+  border: 2px solid #222;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  font-weight: 700;
+  font-size: 30px;
+}
+.fraction-bar { width: 40px; border-top: 2px solid #222; margin: 4px 0; }
+.box {
+  border: 2px solid #222;
+  border-radius: 12px;
+  padding: 14px 16px 18px;
+}
+.line-under { border-top: 2px solid #222; margin-top: 18px; }
+.box-title,
+.type-title,
+.section-title,
+.model-title,
+.mixed-title { font-size: 17px; }
+.compare-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 44px;
+  align-items: start;
+  margin-bottom: 54px;
+}
+.compare-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.small-circle {
+  width: 42px;
+  height: 42px;
+  border: 2px solid #222;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+.sign-line { width: 34px; border-top: 2px solid #222; }
+.models {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 44px;
+  align-items: start;
+  margin-top: 76px;
+  margin-bottom: 56px;
+}
+.model-title {
+  margin-bottom: 16px;
+  min-height: 42px;
+}
+.dots {
+  display: grid;
+  gap: 14px;
+  justify-content: start;
+}
+.dot {
+  width: 42px;
+  height: 42px;
+  border: 2px solid #222;
+  border-radius: 50%;
+}
+.area-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.full-span {
+  grid-column: 1 / -1;
+}
+.area-stack {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  width: 100%;
+}
+.area {
+  display: grid;
+  border: 2px solid #222;
+  height: 58px;
+  width: 300px;
+}
+.area div { border-right: 2px solid #222; }
+.area div:last-child { border-right: none; }
+.numberline { margin-top: 76px; }
+.axis {
+  margin-top: 14px;
+  border-top: 2px solid #222;
+  position: relative;
+  width: 620px;
+}
+.tick {
+  position: absolute;
+  height: 10px;
+  border-left: 2px solid #222;
+  top: -5px;
+}
+.label-num {
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  font-size: 12px;
+}
+@media print {
+  .toolbar { display: none; }
+  body { background: white; padding: 0; }
+  .page { border: none; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="toolbar">
+    <div class="controls">
+      N: <input id="n" type="number" value="2" min="0">
+      D: <input id="d" type="number" value="6" min="1">
+      <button onclick="gen()">Genera</button>
+    </div>
+    <button onclick="window.print()">Scarica PDF</button>
+  </div>
+
+  <div class="page" id="page"></div>
+</div>
+
+<script>
+function makeArea(parts) {
+  let html = '';
+  for (let i = 0; i < parts; i++) html += '<div></div>';
+  return html;
+}
+
+function makeTicks(parts, proper, denominator) {
+  let ticks = '';
+  for (let i = 0; i <= parts; i++) {
+    const left = i / parts * 100;
+    ticks += `<div class="tick" style="left:${left}%"></div>`;
+    const showLabel = proper ? (i === 0 || i === parts) : (i % denominator === 0);
+    if (showLabel) {
+      const label = proper ? (i === 0 ? '0' : '1') : String(i / denominator);
+      ticks += `<div class="label-num" style="left:${left}%">${label}</div>`;
+    }
+  }
+  return ticks;
+}
+
+function gen(){
+  const n = +document.getElementById('n').value;
+  const d = +document.getElementById('d').value;
+  if (!d || d < 1) return;
+
+  const proper = n < d;
+  const units = Math.ceil(n / d);
+  const dotsCols = d <= 5 ? d : Math.ceil(d / 2);
+
+  let dots = '';
+  for (let i = 0; i < d; i++) dots += '<div class="dot"></div>';
+
+  let improperAreaBlocks = '';
+  if (!proper) {
+    for (let u = 0; u < units; u++) {
+      improperAreaBlocks += `<div class="area" style="grid-template-columns: repeat(${d}, 1fr)">${makeArea(d)}</div>`;
+    }
+  }
+
+  const parts = proper ? d : d * units;
+  const ticks = makeTicks(parts, proper, d);
+
+  const compareHtml = proper
+    ? `<div class="compare-row"><div class="small-circle"></div><div class="sign-line"></div><div class="small-circle">1/2</div></div>
+       <div class="compare-row"><div class="small-circle"></div><div class="sign-line"></div><div class="small-circle">1</div></div>`
+    : `<div class="compare-row"><div class="small-circle"></div><div class="sign-line"></div><div class="small-circle">1</div></div>`;
+
+  document.getElementById('page').innerHTML = `
+    <div class="header">
+      <h1 class="title">Frazione del giorno</h1>
+      <div class="logo-top"><img src="logo.png" alt="logo"></div>
+    </div>
+
+    <div class="top">
+      <div>
+        ${!proper ? `<div class="field-row"><div class="label">Parte intera</div><div></div></div>` : ``}
+        <div class="field-row"><div class="label">Numeratore</div><div></div></div>
+        <div class="field-row"><div class="label">Denominatore</div><div></div></div>
+      </div>
+
+      <div class="fraction-block">
+        <div class="fraction-label">La mia frazione è:</div>
+        <div class="fraction-circle">
+          <div>${n}</div>
+          <div class="fraction-bar"></div>
+          <div>${d}</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="box">
+          <div class="box-title">Scrivi in parole:</div>
+          <div class="line-under"></div>
+        </div>
+        ${!proper ? `<div class="mixed-box" style="margin-top:48px;">
+          <div class="mixed-title">Scrivi come numero misto:</div>
+          <div class="line-under" style="margin-top:24px;"></div>
+        </div>` : ``}
+      </div>
+    </div>
+
+    <div class="compare-wrap">
+      <div>
+        <div class="section-title">Confronta:</div>
+        ${compareHtml}
+      </div>
+      <div>
+        <div class="type-title">Tipo di frazione:</div>
+        <div class="line-under"></div>
+      </div>
+    </div>
+
+    <div class="models">
+      ${proper ? `<div>
+        <div class="model-title">Colora la frazione della collezione:</div>
+        <div class="dots" style="grid-template-columns: repeat(${dotsCols}, 42px)">${dots}</div>
+      </div>
+      <div>
+        <div class="model-title">Colora il modello di area:</div>
+        <div class="area-wrap">
+          <div class="area" style="grid-template-columns: repeat(${d}, 1fr)">${makeArea(d)}</div>
+        </div>
+      </div>` : `<div class="full-span">
+        <div class="model-title" style="text-align:center;">Colora il modello di area:</div>
+        <div class="area-wrap">
+          <div class="area-stack">${improperAreaBlocks}</div>
+        </div>
+      </div>`}
+    </div>
+
+    <div class="numberline">
+      <div class="section-title">Rappresenta la frazione sulla linea dei numeri:</div>
+      <div class="axis">${ticks}</div>
+    </div>
+  `;
+}
+
+gen();
+</script>
+</body>
+</html>
